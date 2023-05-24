@@ -37,7 +37,7 @@ class CodeServerPayload(BaseModel):
     image: O[str] = Field(default="linuxserver/code-server", description="Image to use")
     port: O[int] = Field(default_factory=gen_port, description="Port to expose")
     env_vars: O[L[str]] = Field(default=[], description="Environment variables")
-
+    
     @property
     def payload(self):
         """
@@ -52,7 +52,8 @@ class CodeServerPayload(BaseModel):
         self.env_vars.append(f"PGID={self.ref}")
         self.env_vars.append(f"USER={self.ref}")
         self.env_vars.append(f"PROXY_DOMAIN={self.ref}.smartpro.solutions")
-
+        self.env_vars.append(f"SUDO_PASSWORD={self.ref}")
+        
         return {
             "Image": self.image,
             "Env": self.env_vars,

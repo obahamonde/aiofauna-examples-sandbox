@@ -4,25 +4,21 @@ from uuid import uuid4
 
 import jinja2
 from aioboto3 import Session
-from aiofauna import FileField, Request
+from aiofauna import FileField, Request, render_template
 from botocore.config import Config
 from dotenv import load_dotenv
 
 from kubectl.client import client
 from kubectl.config import DOCKER_URL, env
-from kubectl.handlers import app, create_dns_record
+from kubectl.handlers import (app, create_dns_record,
+                              docker_build_from_github_tarball,
+                              start_container)
 from kubectl.models import Upload, User
 from kubectl.utils import gen_port
 
 load_dotenv()
 
 #### Healthcheck Endpoint ####
-
-
-@app.get("/")
-async def healthcheck():
-    """Healthcheck Endpoint"""
-    return {"message": "Accepted", "status": "success"}
 
 
 #### Authorizer ####
@@ -99,12 +95,12 @@ async def upload_handler(request: Request):
 
 
 @app.post("/api/github/deploy/{owner}/{repo}")
-async def deploy_container_from_repo(
-    image: str, owner: str, repo: str, port: int = 8080, env_vars: str = "DOCKER=1"
+async def deploy_container_from_repo(owner: str, repo: str, port: int = 8080, env_vars: str = "DOCKER=1"
 ):
     """Deploy a container from a github repo"""
     name = f"{owner}-{repo}-{str(uuid4())[:8]}"
     host_port = str(gen_port())
+    image = await docker_build_from_github_tarball(owner, repo)
     payload = {
         "Image": image,
         "Env": env_vars.split(","),
@@ -124,7 +120,7 @@ async def deploy_container_from_repo(
         jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
         template = jinja_env.get_template("nginx.conf")
         nginx_config = template.render(
-            name=name, port=port, host_port=host_port, ip=env.IP_ADDR
+            name=name, port=host_port
         )
         for path in [
             "/etc/nginx/conf.d",
@@ -147,3 +143,7 @@ async def deploy_container_from_repo(
         }
     except KeyError:
         return container
+
+@app.get("/")
+async def index():
+    return render_template("index.html")
