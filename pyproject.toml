@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "kubectl"
+version = "0.0.1"
+description = ""
+authors = ["Oscar Bahamonde <oscar.bahamonde@sakai-dev.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+cryptography = "^40.0.2"
+PyJWT = "^2.6.0"
+aioredis = "^2.0.1"
+aiofauna = "^0.0.38"
+aioboto3 = "^11.1.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
