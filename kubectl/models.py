@@ -91,13 +91,13 @@ class CodeServer(Q):
 
         """
         assert isinstance(self.env_vars, list)
-        self.env_vars.append(f"PASSWORD={self.ref}")
+        self.env_vars.append(f"PASSWORD={self.user}")
         self.env_vars.append("TZ=America/New_York")
-        self.env_vars.append(f"PUID={self.ref}")
-        self.env_vars.append(f"PGID={self.ref}")
-        self.env_vars.append(f"USER={self.ref}")
-        self.env_vars.append(f"PROXY_DOMAIN={self.ref}.smartpro.solutions")
-        self.env_vars.append(f"SUDO_PASSWORD={self.ref}")
+        self.env_vars.append(f"PUID={self.user}")
+        self.env_vars.append(f"PGID={self.user}")
+        self.env_vars.append(f"USER={self.user}")
+        self.env_vars.append(f"PROXY_DOMAIN={self.user}.smartpro.solutions")
+        self.env_vars.append(f"SUDO_PASSWORD={self.user}")
         
         return {
             "Image": self.image,

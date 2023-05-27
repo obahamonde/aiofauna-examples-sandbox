@@ -1,10 +1,12 @@
 """Application endpoints"""
+import asyncio
 import os
 from uuid import uuid4
 
 import jinja2
 from aioboto3 import Session
-from aiofauna import FileField, Request, render_template
+from aiofauna import (FaunaModel, FileField, Request,  # pylint: disable=all
+                      render_template)
 from botocore.config import Config
 from dotenv import load_dotenv
 
@@ -12,8 +14,9 @@ from kubectl.client import client
 from kubectl.config import DOCKER_URL, env
 from kubectl.handlers import (app, create_dns_record,
                               docker_build_from_github_tarball,
-                              start_container)
+                              get_latest_commit_sha, start_container)
 from kubectl.models import Upload, User
+from kubectl.payload import RepoDeployPayload
 from kubectl.utils import gen_port
 
 load_dotenv()
@@ -93,19 +96,40 @@ async def upload_handler(request: Request):
                 ).save()
     return {"message": "Invalid request", "status": "error"}
 
+async def container_exists(id:str)->bool:
+    """Check if a container exists"""
+    try:
+        await client.fetch(f"{DOCKER_URL}/containers/{id}/json")
+        return True
+    except Exception as e:
+        return False
 
-@app.post("/api/github/deploy/{owner}/{repo}")
-async def deploy_container_from_repo(owner: str, repo: str, port: int = 8080, env_vars: str = "DOCKER=1"
+async def delete_container(id:str):
+    """Delete a container"""
+    try:
+        await client.fetch(f"{DOCKER_URL}/containers/{id}",method="DELETE")
+    except Exception as e:
+        print(e)
+
+
+@app.post("/api/deploy/{owner}/{repo}")
+async def deploy_container_from_repo(owner:str,repo:str,body:RepoDeployPayload
 ):
     """Deploy a container from a github repo"""
-    name = f"{owner}-{repo}-{str(uuid4())[:8]}"
+    sha = uuid4().hex[:7]
+    name = f"{owner}-{repo}-{sha}"
+    if await container_exists(name):
+        await delete_container(name)
+    else:
+        print("Container does not exist")
     host_port = str(gen_port())
     image = await docker_build_from_github_tarball(owner, repo)
+    print(image)
     payload = {
         "Image": image,
-        "Env": env_vars.split(","),
-        "ExposedPorts": {f"{str(port)}/tcp": {"HostPort": host_port}},
-        "HostConfig": {"PortBindings": {f"{str(port)}/tcp": [{"HostPort": host_port}]}},
+        "Env": body.env_vars,
+        "ExposedPorts": {f"{str(body.port)}/tcp": {"HostPort": host_port}},
+        "HostConfig": {"PortBindings": {f"{str(body.port)}/tcp": [{"HostPort": host_port}]}},
     }
     container = await client.fetch(
         f"{DOCKER_URL}/containers/create?name={name}",
@@ -115,8 +139,10 @@ async def deploy_container_from_repo(owner: str, repo: str, port: int = 8080, en
     )
     try:
         _id = container["Id"]
+        print(_id)
         await start_container(_id)
         res = await create_dns_record(name)
+        print(res)
         jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
         template = jinja_env.get_template("nginx.conf")
         nginx_config = template.render(
@@ -135,15 +161,31 @@ async def deploy_container_from_repo(owner: str, repo: str, port: int = 8080, en
                 f.write(nginx_config)
         os.system("nginx -s reload")
         data = await client.fetch(f"{DOCKER_URL}/containers/{_id}/json")
+        print(data)
         return {
-            "url": f"{name}.smartpro.solutions",
+            "url": f"https://{name}.smartpro.solutions",
             "port": host_port,
             "container": data,
             "dns": res,
+            "image": image,
         }
     except KeyError:
         return container
 
+
+import inspect
+
+import kubectl.models as models
+
+models_ = [n for m,n in inspect.getmembers(models) if inspect.isclass(n) and issubclass(n, FaunaModel) and n != FaunaModel]
+
 @app.get("/")
 async def index():
     return render_template("index.html")
+#@app.on_event("startup")
+async def startup(_):
+    
+    await asyncio.gather(*[m.provision() for m in models_])
+
+if __name__ == "__main__":
+    app.run()

@@ -115,7 +115,6 @@ async def get_code_server_image(ref:str):
         nginx_config = template.render(name=ref, port=instance.port)
         for path in [
             "/etc/nginx/conf.d",
-            "/etc/nginx/sites-enabled",
             "/etc/nginx/sites-available",
         ]:
             try:
@@ -137,7 +136,7 @@ async def get_code_server_image(ref:str):
         return data 
         
         
-@app.get("/api/database")
+@app.get("/api/db/{ref}")
 async def get_database_key(ref:str):
     """Get the database key"""
     try:

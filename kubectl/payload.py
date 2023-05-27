@@ -23,42 +23,15 @@ class RepoBuildPayload(BaseModel):
     repo: str = Field(..., description="Repository name")
     port: O[int] = Field(default_factory=gen_port, description="Port to expose")
     env_vars: L[str] = Field([], description="Environment variables")
-    cmd: L[str] = Field([], description="Command to run")
+    cmd: L[str] = Field(["DOCKER=1"], description="Command to run")
 
 
-class CodeServerPayload(BaseModel):
+class RepoDeployPayload(BaseModel):
     """
-
-    Code server payload
-
-    """
-
-    ref: str = Field(..., description="User reference")
-    image: O[str] = Field(default="linuxserver/code-server", description="Image to use")
-    port: O[int] = Field(default_factory=gen_port, description="Port to expose")
-    env_vars: O[L[str]] = Field(default=[], description="Environment variables")
     
-    @property
-    def payload(self):
-        """
-
-        Payload
-
-        """
-        assert isinstance(self.env_vars, list)
-        self.env_vars.append(f"PASSWORD={self.ref}")
-        self.env_vars.append("TZ=America/New_York")
-        self.env_vars.append(f"PUID={self.ref}")
-        self.env_vars.append(f"PGID={self.ref}")
-        self.env_vars.append(f"USER={self.ref}")
-        self.env_vars.append(f"PROXY_DOMAIN={self.ref}.smartpro.solutions")
-        self.env_vars.append(f"SUDO_PASSWORD={self.ref}")
-        
-        return {
-            "Image": self.image,
-            "Env": self.env_vars,
-            "ExposedPorts": {"8443/tcp": {"HostPort": str(self.port)}},
-            "HostConfig": {
-                "PortBindings": {"8443/tcp": [{"HostPort": str(self.port)}]}
-            },
-        }
+    Repository deploy payload
+    
+    """
+    
+    env_vars: O[L[str]] = Field(default=["DOCKER=1"], description="Environment variables")
+    port:int=Field(default=8080, description="Port to expose")

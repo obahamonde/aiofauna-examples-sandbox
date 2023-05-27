@@ -6,8 +6,6 @@ authors = ["Oscar Bahamonde <oscar.bahamonde@sakai-dev.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-cryptography = "^40.0.2"
-PyJWT = "^2.6.0"
 aioredis = "^2.0.1"
 aiofauna = "^0.0.38"
 aioboto3 = "^11.1.0"
