@@ -1,11 +1,13 @@
 FROM python:3.9.7-slim-buster
 
-ARG LOCAL_PATH
-
 WORKDIR /app
 
-COPY ${LOCAL_PATH} /app
+COPY requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "main.py"]
+COPY . .
+
+EXPOSE 8080
+
+CMD ["pytho3", "-m", "main.py"]

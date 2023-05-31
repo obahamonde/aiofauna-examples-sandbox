@@ -10,7 +10,7 @@ from aiohttp.web import WebSocketResponse
 
 from kubectl.client import client
 from kubectl.config import CLOUDFLARE_HEADERS, DOCKER_URL, GITHUB_HEADERS, env
-from kubectl.models import CodeServer, DatabaseKey
+from kubectl.models import CodeServer, Container, DatabaseKey
 
 app = Api()
 
@@ -42,7 +42,6 @@ async def docker_pull(ws: WebSocketResponse, image: str):
         f"{DOCKER_URL}/images/create?fromImage={image}", "POST"
     ):
         await ws.send_json(json.loads(event))
-        print(event)
         if "Pull complete" in event:
             await ws.send_json(event)
             return {"message": "Pull succeeded", "status": "success"}
@@ -165,4 +164,6 @@ async def get_database_key(ref:str):
             role=role
         ).save()
     except Exception as e:
+        
+
         return {"message": str(e), "status": "error"}

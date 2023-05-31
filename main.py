@@ -14,7 +14,7 @@ from kubectl.client import client
 from kubectl.config import DOCKER_URL, env
 from kubectl.handlers import (app, create_dns_record,
                               docker_build_from_github_tarball,
-                              get_latest_commit_sha, start_container)
+                              start_container)
 from kubectl.models import Upload, User
 from kubectl.payload import RepoDeployPayload
 from kubectl.utils import gen_port
@@ -139,10 +139,8 @@ async def deploy_container_from_repo(owner:str,repo:str,body:RepoDeployPayload
     )
     try:
         _id = container["Id"]
-        print(_id)
         await start_container(_id)
         res = await create_dns_record(name)
-        print(res)
         jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
         template = jinja_env.get_template("nginx.conf")
         nginx_config = template.render(
@@ -161,7 +159,6 @@ async def deploy_container_from_repo(owner:str,repo:str,body:RepoDeployPayload
                 f.write(nginx_config)
         os.system("nginx -s reload")
         data = await client.fetch(f"{DOCKER_URL}/containers/{_id}/json")
-        print(data)
         return {
             "url": f"https://{name}.smartpro.solutions",
             "port": host_port,
@@ -182,10 +179,10 @@ models_ = [n for m,n in inspect.getmembers(models) if inspect.isclass(n) and iss
 @app.get("/")
 async def index():
     return render_template("index.html")
-#@app.on_event("startup")
+
+@app.on_event("startup")
 async def startup(_):
-    
     await asyncio.gather(*[m.provision() for m in models_])
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=8080,host="0.0.0.0")

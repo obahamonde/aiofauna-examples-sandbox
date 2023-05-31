@@ -1,1 +1,4 @@
 aiofauna
+aioboto3
+aioredis
+names

@@ -4,12 +4,15 @@ AioFauna Models
 
 """
 from datetime import datetime
+from random import randint
 from typing import List as L
 from typing import Optional as O
 
 from aioboto3 import Session
 from aiofauna import FaunaModel as Q
 from aiofauna import Field
+from names import get_full_name
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 from kubectl.utils import gen_port
 
@@ -107,3 +110,49 @@ class CodeServer(Q):
                 "PortBindings": {"8443/tcp": [{"HostPort": str(self.port)}]}
             },
         }
+
+
+
+class MetricsSchema(BaseModel):
+    """The schema of the metrics."""
+
+    latency: float = Field(
+        ..., description="The time taken for the request to be processed by the server."
+    )
+    cpu_cycle: int = Field(
+        ...,
+        description="The number of CPU cycles taken for the request to be processed by the server.",
+    )
+    memory: int = Field(
+        ...,
+        description="The amount of memory taken for the request to be processed by the server.",
+    )
+    network_time: float = Field(
+        ..., description="The time taken for the request to be processed by the server."
+    )
+    network_speed: float = Field(..., description="The network speed of the server.")
+    requests_per_second: float = Field(
+        ..., description="The number of requests processed by the server per second."
+    )
+
+
+class MetricsModel(Q):
+    """The metrics stored in the database."""
+
+    metrics: MetricsSchema = Field(..., description="The schema of the metrics.")
+    endpoint: str = Field(..., description="The endpoint of the metrics.")
+    method: str = Field(..., description="The method of the metrics.")
+    timestamp: float = Field(
+        default_factory=datetime.now().timestamp,description="The timestamp of the metrics."
+    )
+
+
+class Dummy(Q):
+    name: O[str] = Field(default_factory=get_full_name)
+    age: O[int] = Field(default_factory=lambda: randint(0, 100))
+    
+    
+class Container(Q):
+    container_id:str = Field(..., unique=True)
+    user: str = Field(..., description="User reference", index=True)
+    url: O[str] = Field(None, description="Container url")

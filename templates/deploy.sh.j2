@@ -1,0 +1,13 @@
+doctl auth init
+doctl registry login
+
+docker build -t {{ app }}:{{ tag }} .
+docker images | grep {{ app }}:{{ tag }}
+docker run -p 8080:80 {{ app }}:{{ tag }}
+docker tag {{ app }}:{{ tag }} registry.digitalocean.com/{{ registry }}/{{ app }}:{{ tag }}
+docker push registry.digitalocean.com/{{ registry }}/{{ app }}:{{ tag }}
+doctl registry kubernetes-manifest | kubectl apply -f -
+kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "registry-{{ registry }}"}]}'
+kubectl create deployment {{ app }}:{{ tag }} --image=registry.digitalocean.com/{{ registry }}/{{ app }}:{{ tag }}
+kubectl expose deployment {{ app }}:{{ tag }} --type=LoadBalancer --port=80 --target-port=80 --wait
+doctl compute load-balancer list --format Name,Created,IP,Status

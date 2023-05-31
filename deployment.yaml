@@ -1,0 +1,43 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "test"
+  namespace: "default"
+  labels:
+    app: "test"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "test"
+  template:
+    metadata:
+      labels:
+        app: "test"
+    spec:
+      containers:
+      - name: "test-kube-sha256-1"
+        image: "gcr.io/steam-patrol-380019/test_kube@sha256:98f63a64a86bc195776e64d7b39fec0a8e216c902a5a15dd69e6266ed2cd18e7"
+---
+apiVersion: "autoscaling/v2"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "test-hpa-kiu7"
+  namespace: "default"
+  labels:
+    app: "test"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "test"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      target:
+        type: "Utilization"
+        averageUtilization: 80
