@@ -124,7 +124,12 @@ async def deploy_container_from_repo(owner:str,repo:str,body:RepoDeployPayload
         print("Container does not exist")
     host_port = str(gen_port())
     image = await docker_build_from_github_tarball(owner, repo)
-    print(image)
+    if image is None:
+        return {
+            "message": "Failed to build image",
+            "status": "error"
+        }
+ 
     payload = {
         "Image": image,
         "Env": body.env_vars,
@@ -180,7 +185,7 @@ models_ = [n for m,n in inspect.getmembers(models) if inspect.isclass(n) and iss
 async def index():
     return render_template("index.html")
 
-@app.on_event("startup")
+#@app.on_event("startup")
 async def startup(_):
     await asyncio.gather(*[m.provision() for m in models_])
 

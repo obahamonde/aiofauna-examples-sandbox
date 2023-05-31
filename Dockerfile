@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["pytho3", "-m", "main.py"]
+CMD ["python", "-m", "main.py"]
