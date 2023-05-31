@@ -6,7 +6,7 @@ from uuid import uuid4
 import jinja2
 from aioboto3 import Session
 from aiofauna import (FaunaModel, FileField, Request,  # pylint: disable=all
-                      render_template)
+                      redirect)
 from botocore.config import Config
 from dotenv import load_dotenv
 
@@ -183,7 +183,7 @@ models_ = [n for m,n in inspect.getmembers(models) if inspect.isclass(n) and iss
 
 @app.get("/")
 async def index():
-    return render_template("index.html")
+    return redirect("/docs")
 
 #@app.on_event("startup")
 async def startup(_):
