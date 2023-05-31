@@ -14,6 +14,7 @@ from kubectl.models import CodeServer, Container, DatabaseKey
 
 app = Api()
 
+@app.get("/api/docker/build/{owner}/{repo}")
 async def docker_build_from_github_tarball(owner: str, repo: str):
     """
     Builds a Docker image from the latest code for the given GitHub repository.
