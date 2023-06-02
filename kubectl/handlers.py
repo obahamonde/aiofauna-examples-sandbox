@@ -10,6 +10,7 @@ from aiohttp.web import WebSocketResponse
 
 from kubectl.client import client
 from kubectl.config import CLOUDFLARE_HEADERS, DOCKER_URL, GITHUB_HEADERS, env
+from kubectl.helpers import provision_instance
 from kubectl.models import CodeServer, Container, DatabaseKey
 
 app = Api()
@@ -49,23 +50,6 @@ async def docker_pull(ws: WebSocketResponse, image: str):
     return {"message": "Pull failed", "status": "error"}
 
 
-@app.get("/api/dns/records")
-async def create_dns_record(name: str):
-    """Create an A record for a given subdomain"""
-    payload = {
-        "type": "A",
-        "name": name,
-        "content": env.IP_ADDR,
-        "ttl": 1,
-        "proxied": True,
-    }
-
-    return await client.fetch(
-        f"https://api.cloudflare.com/client/v4/zones/{env.CF_ZONE_ID}/dns_records",
-        "POST",
-        headers=CLOUDFLARE_HEADERS,
-        data=payload,
-    )
 
 @app.get("/api/sha")
 async def get_latest_commit_sha(owner: str, repo: str) -> str:
@@ -91,10 +75,16 @@ async def get_code_server_image(ref:str):
     """
     Create a new CodeServer container
     """
-    existing = await CodeServer.find_unique("user", ref)
+    existing = await CodeServer.find_unique("user", ref) 
     
     if isinstance(existing, CodeServer):
-        return existing    
+        
+        return {
+            "instance": existing.dict(),
+            "port": existing.port,
+            "payload": existing.payload,
+            "url": f"https://{ref}.smartpro.solutions"
+        }
     
     instance = await CodeServer(user=ref).save()
     
@@ -105,36 +95,30 @@ async def get_code_server_image(ref:str):
     data = await client.fetch(f"{DOCKER_URL}/containers/create", method="POST", data=data)
 
     _id = data["Id"]
+
+    await client.text(f"{DOCKER_URL}/containers/{_id}/start", method="POST")
     
-    try:
-        assert isinstance(instance.port,int)        
-        await start_container(_id)
-        dns_response = await create_dns_record(ref)
-        jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
-        template = jinja_env.get_template("nginx.conf")
-        nginx_config = template.render(name=ref, port=instance.port)
-        for path in [
-            "/etc/nginx/conf.d",
-            "/etc/nginx/sites-available",
-        ]:
-            try:
-                os.remove(f"{path}/{ref}.conf")
-            except: # pylint: disable=bare-except
-                pass # pylint: disable=unnecessary-pass
-            with open(f"{path}/{ref}.conf", "w", encoding="utf-8") as f:
-                f.write(nginx_config)
-        os.system("nginx -s reload")
-        container = await client.fetch(f"{DOCKER_URL}/containers/{_id}/json")
-        assert isinstance(instance.port,int)
-        return {
-            "url": f"{ref}.smartpro.solutions",
-            "port": instance.port,
-            "container": container,
-            "dns": dns_response,
-        }
-    except KeyError:
-        return data 
-        
+    container_info = await client.fetch(f"{DOCKER_URL}/containers/{_id}/json", method="GET")
+    
+    assert isinstance(instance.port,int)
+    assert isinstance(instance.proxy_port,int)
+    
+    provision_info = await provision_instance(ref,instance.port)
+    proxy_info = await provision_instance(f"{ref}-proxy",instance.proxy_port)
+    
+    
+    
+    return {
+        "container": _id,
+        "port": instance.port,
+        "url": f"https://{ref}.smartpro.solutions",
+        "proxy": f"https://{ref}-proxy.smartpro.solutions",
+        "provision_info": provision_info,
+        "proxy_provision": proxy_info,
+        "info": container_info
+    }
+    
+    
         
 @app.get("/api/db/{ref}")
 async def get_database_key(ref:str):

@@ -3,17 +3,20 @@
 AioFauna Models
 
 """
+import os
 from datetime import datetime
 from random import randint
 from typing import List as L
 from typing import Optional as O
 
+import jinja2
 from aioboto3 import Session
 from aiofauna import FaunaModel as Q
 from aiofauna import Field
 from names import get_full_name
 from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
+from kubectl.helpers import jinja_env
 from kubectl.utils import gen_port
 
 session = Session()
@@ -30,7 +33,7 @@ class Upload(Q):
     name: str = Field(..., description="File name")
     key: str = Field(..., description="File key", unique=True)
     size: int = Field(..., description="File size", gt=0)
-    type: str = Field(..., description="File type", index=True)
+    content_type: str = Field(..., description="File type", index=True)
     lastModified: float = Field(
         default_factory=lambda: datetime.now().timestamp(),
         description="Last modified",
@@ -84,6 +87,7 @@ class CodeServer(Q):
     user: str = Field(..., description="User reference", unique=True)
     image: O[str] = Field(default="linuxserver/code-server", description="Image to use")
     port: O[int] = Field(default_factory=gen_port, description="Port to expose")
+    proxy_port: O[int] = Field(default_factory=gen_port, description="Proxy port")
     env_vars: O[L[str]] = Field(default=[], description="Environment variables")
     
     @property
@@ -102,13 +106,31 @@ class CodeServer(Q):
         self.env_vars.append(f"PROXY_DOMAIN={self.user}.smartpro.solutions")
         self.env_vars.append(f"SUDO_PASSWORD={self.user}")
         
+        os.makedirs(f"./.vscode/{self.user}/config/workspace", exist_ok=True)
+        os.makedirs(f"./.vscode/{self.user}/config/extensions", exist_ok=True)        
+        
+        code_server_settings = jinja_env.get_template("settings.json").render()
+        
+        with open(f"./.vscode/{self.user}/config/extensions/settings.json", "w") as f:
+            f.write(code_server_settings)
+        
         return {
             "Image": self.image,
             "Env": self.env_vars,
             "ExposedPorts": {"8443/tcp": {"HostPort": str(self.port)}},
             "HostConfig": {
-                "PortBindings": {"8443/tcp": [{"HostPort": str(self.port)}]}
+                "PortBindings": {"8443/tcp": [{"HostPort": str(self.port)}],
+                                 "8080/tcp": [{"HostPort": str(self.proxy_port)}]},
             },
+            "Volumes": {f"./.vscode/{self.user}/config/workspace": {
+                "bind": "/config/workspace",
+                "mode": "rw"
+            },
+            f"./.vscode/{self.user}/config/extensions": {
+                "bind": "/config/extensions",
+                "mode": "rw"
+            }
+        }
         }
 
 

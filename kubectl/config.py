@@ -43,7 +43,7 @@ env = Env()
 
 # API Endpoints
 
-DOCKER_URL = f"http://{env.IP_ADDR}:9898"
+DOCKER_URL = "https://doctl.smartpro.solutions"
 
 GITHUB_URL = "https://api.github.com"
 

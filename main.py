@@ -12,9 +12,9 @@ from dotenv import load_dotenv
 
 from kubectl.client import client
 from kubectl.config import DOCKER_URL, env
-from kubectl.handlers import (app, create_dns_record,
-                              docker_build_from_github_tarball,
+from kubectl.handlers import (app, docker_build_from_github_tarball,
                               start_container)
+from kubectl.helpers import provision_instance
 from kubectl.models import Upload, User
 from kubectl.payload import RepoDeployPayload
 from kubectl.utils import gen_port
@@ -31,9 +31,14 @@ load_dotenv()
 async def authorize(token: str):
     """Authorization Endpoint, exchange token for user info"""
     headers = {"Authorization": f"Bearer {token}"}
-    url = f"https://{env.AUTH0_DOMAIN}/userinfo"
+    url = f"https://dev-tvhqmk7a.us.auth0.com/userinfo"
     user_dict = await client.fetch(url, headers=headers)
     return await User(**user_dict).save()
+
+@app.put("/api/user/{ref}")
+async def change_profile_picture(ref:str,picture:str):
+    """Change a user's profile picture"""
+    return await User.update(ref, picture=picture)
 
 
 #### Bucket obj Endpoints ####
@@ -91,7 +96,7 @@ async def upload_handler(request: Request):
                     key=key_,
                     name=file.filename,
                     size=size,
-                    type=file.content_type,
+                    content_type=file.content_type,
                     url=url,
                 ).save()
     return {"message": "Invalid request", "status": "error"}
@@ -145,31 +150,15 @@ async def deploy_container_from_repo(owner:str,repo:str,body:RepoDeployPayload
     try:
         _id = container["Id"]
         await start_container(_id)
-        res = await create_dns_record(name)
-        jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
-        template = jinja_env.get_template("nginx.conf")
-        nginx_config = template.render(
-            name=name, port=host_port
-        )
-        for path in [
-            "/etc/nginx/conf.d",
-            "/etc/nginx/sites-enabled",
-            "/etc/nginx/sites-available",
-        ]:
-            try:
-                os.remove(f"{path}/{name}.conf")
-            except:  # pylint: disable=bare-except
-                pass  # pylint: disable=unnecessary-pass
-            with open(f"{path}/{name}.conf", "w", encoding="utf-8") as f:
-                f.write(nginx_config)
-        os.system("nginx -s reload")
         data = await client.fetch(f"{DOCKER_URL}/containers/{_id}/json")
+        provision_info = await provision_instance(
+                name,int(host_port))
         return {
             "url": f"https://{name}.smartpro.solutions",
             "port": host_port,
             "container": data,
-            "dns": res,
             "image": image,
+            "provision_info": provision_info,
         }
     except KeyError:
         return container
@@ -185,9 +174,9 @@ models_ = [n for m,n in inspect.getmembers(models) if inspect.isclass(n) and iss
 async def index():
     return redirect("/docs")
 
-#@app.on_event("startup")
+@app.on_event("startup")
 async def startup(_):
     await asyncio.gather(*[m.provision() for m in models_])
 
 if __name__ == "__main__":
-    app.run(port=8080,host="0.0.0.0")
+    app.run()

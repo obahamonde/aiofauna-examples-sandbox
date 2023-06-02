@@ -1,0 +1,256 @@
+[
+  {
+    "identifier": {
+      "id": "esbenp.prettier-vscode",
+      "uuid": "96fa4707-6983-4489-b7c5-d5ffdfdcce90"
+    },
+    "version": "9.13.0",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/esbenp.prettier-vscode-9.13.0-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "esbenp.prettier-vscode-9.13.0-universal",
+    "metadata": {
+      "id": "96fa4707-6983-4489-b7c5-d5ffdfdcce90",
+      "publisherId": "d16f4e39-2ffb-44e3-9c0d-79d873570e3a",
+      "publisherDisplayName": "esbenp",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700867357,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "ms-python.python",
+      "uuid": "f1f59ae4-9318-4f3c-a9b5-81b2eaa5f8a5"
+    },
+    "version": "2023.8.0",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/ms-python.python-2023.8.0-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "ms-python.python-2023.8.0-universal",
+    "metadata": {
+      "id": "f1f59ae4-9318-4f3c-a9b5-81b2eaa5f8a5",
+      "publisherId": "998b010b-e2af-44a5-a6cd-0b5fd3b9b6f8",
+      "publisherDisplayName": "ms-python",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700864990,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "pkief.material-icon-theme",
+      "uuid": "5db78037-f674-459f-a236-db622c427c5b"
+    },
+    "version": "4.28.0",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/pkief.material-icon-theme-4.28.0-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "pkief.material-icon-theme-4.28.0-universal",
+    "metadata": {
+      "id": "5db78037-f674-459f-a236-db622c427c5b",
+      "publisherId": "f9e5bc2f-fea1-4075-917f-d83e01e69f56",
+      "publisherDisplayName": "PKief",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700884137,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "formulahendry.auto-close-tag",
+      "uuid": "d3836729-9cc1-42c1-b2af-d50071f57d29"
+    },
+    "version": "0.5.14",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/formulahendry.auto-close-tag-0.5.14-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "formulahendry.auto-close-tag-0.5.14-universal",
+    "metadata": {
+      "id": "d3836729-9cc1-42c1-b2af-d50071f57d29",
+      "publisherId": "38bbe3f0-5204-4170-845e-c2f966d979b8",
+      "publisherDisplayName": "formulahendry",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700892725,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "ms-python.isort",
+      "uuid": "4ad0ce32-ff3f-49f0-83b5-93e5dc00cfff"
+    },
+    "version": "2022.8.0",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/ms-python.isort-2022.8.0-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "ms-python.isort-2022.8.0-universal",
+    "metadata": {
+      "id": "4ad0ce32-ff3f-49f0-83b5-93e5dc00cfff",
+      "publisherId": "998b010b-e2af-44a5-a6cd-0b5fd3b9b6f8",
+      "publisherDisplayName": "ms-python",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700896136,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "bradlc.vscode-tailwindcss",
+      "uuid": "4db62a7c-7d70-419c-96d2-6c3a4dc77ea5"
+    },
+    "version": "0.9.11",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/bradlc.vscode-tailwindcss-0.9.11-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "bradlc.vscode-tailwindcss-0.9.11-universal",
+    "metadata": {
+      "id": "4db62a7c-7d70-419c-96d2-6c3a4dc77ea5",
+      "publisherId": "84722833-669b-4c7d-920e-b60e43fae19a",
+      "publisherDisplayName": "bradlc",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700902763,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "ms-pyright.pyright",
+      "uuid": "593fe6a5-513e-4cb3-abfb-5b9f5fe39802"
+    },
+    "version": "1.1.306",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/ms-pyright.pyright-1.1.306-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "ms-pyright.pyright-1.1.306-universal",
+    "metadata": {
+      "id": "593fe6a5-513e-4cb3-abfb-5b9f5fe39802",
+      "publisherId": "26b7f243-cfb3-448b-8209-25b30d7e81c0",
+      "publisherDisplayName": "ms-pyright",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700903479,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "tabnine.tabnine-vscode",
+      "uuid": "75da638c-c45a-44ea-aa3b-8570a3559810"
+    },
+    "version": "3.6.51",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/tabnine.tabnine-vscode-3.6.51-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "tabnine.tabnine-vscode-3.6.51-universal",
+    "metadata": {
+      "id": "75da638c-c45a-44ea-aa3b-8570a3559810",
+      "publisherId": "1924b661-7c19-45d9-9800-edeb32848fd7",
+      "publisherDisplayName": "TabNine",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700910953,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "rangav.vscode-thunder-client",
+      "uuid": "2fd56207-78ef-49d4-95d2-9b801eee4dbf"
+    },
+    "version": "2.7.3",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/rangav.vscode-thunder-client-2.7.3-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "rangav.vscode-thunder-client-2.7.3-universal",
+    "metadata": {
+      "id": "2fd56207-78ef-49d4-95d2-9b801eee4dbf",
+      "publisherId": "f6503eef-4f6f-415c-b1e0-221209c035ee",
+      "publisherDisplayName": "rangav",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700916165,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "formulahendry.auto-rename-tag",
+      "uuid": "6e440e71-8ed9-4f25-bb78-4b13096b8a03"
+    },
+    "version": "0.1.10",
+    "location": {
+      "$mid": 1,
+      "path": "/config/extensions/formulahendry.auto-rename-tag-0.1.10-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "formulahendry.auto-rename-tag-0.1.10-universal",
+    "metadata": {
+      "id": "6e440e71-8ed9-4f25-bb78-4b13096b8a03",
+      "publisherId": "38bbe3f0-5204-4170-845e-c2f966d979b8",
+      "publisherDisplayName": "formulahendry",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700949263,
+      "preRelease": false
+    }
+  },
+  {
+    "identifier": {
+      "id": "robbowen.synthwave-vscode",
+      "uuid": "e5fd2b56-1637-4d4f-8252-6c9d416f9a28"
+    },
+    "version": "0.1.15",
+    "location": {
+      "$mid": 1,
+      "fsPath": "/config/extensions/robbowen.synthwave-vscode-0.1.15-universal",
+      "path": "/config/extensions/robbowen.synthwave-vscode-0.1.15-universal",
+      "scheme": "file"
+    },
+    "relativeLocation": "robbowen.synthwave-vscode-0.1.15-universal",
+    "metadata": {
+      "id": "e5fd2b56-1637-4d4f-8252-6c9d416f9a28",
+      "publisherId": "561257c5-26a1-41f1-944f-17639b7b9c87",
+      "publisherDisplayName": "RobbOwen",
+      "targetPlatform": "universal",
+      "updated": false,
+      "isPreReleaseVersion": false,
+      "installedTimestamp": 1685700977755,
+      "preRelease": false
+    }
+  }
+]
