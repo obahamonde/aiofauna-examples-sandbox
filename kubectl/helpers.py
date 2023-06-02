@@ -34,6 +34,7 @@ async def provision_instance(name:str,port:int):
     for path in [
             "/etc/nginx/conf.d",
             "/etc/nginx/sites-available",
+            "/etc/nginx/sites-enabled"
         ]:
             try:
                 os.remove(f"{path}/{name}.conf")

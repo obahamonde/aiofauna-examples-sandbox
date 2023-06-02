@@ -1,6 +1,7 @@
 """Performance Measurement for Python Web Frameworks"""
 import time
 from functools import wraps
+from typing import Callable
 
 import psutil
 import requests
@@ -136,3 +137,4 @@ def metrics_stateful(endpoint_func):
         return response
 
     return wrapper
+

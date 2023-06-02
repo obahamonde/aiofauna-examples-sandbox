@@ -17,6 +17,7 @@ from names import get_full_name
 from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 from kubectl.helpers import jinja_env
+from kubectl.payload import RepoDeployPayload
 from kubectl.utils import gen_port
 
 session = Session()
@@ -83,7 +84,7 @@ class CodeServer(Q):
     Code server payload
 
     """
-
+    container_id: O[str] = Field(default=None, unique=True)
     user: str = Field(..., description="User reference", unique=True)
     image: O[str] = Field(default="linuxserver/code-server", description="Image to use")
     port: O[int] = Field(default_factory=gen_port, description="Port to expose")
@@ -167,14 +168,13 @@ class MetricsModel(Q):
     timestamp: float = Field(
         default_factory=datetime.now().timestamp,description="The timestamp of the metrics."
     )
-
-
-class Dummy(Q):
-    name: O[str] = Field(default_factory=get_full_name)
-    age: O[int] = Field(default_factory=lambda: randint(0, 100))
-    
     
 class Container(Q):
-    container_id:str = Field(..., unique=True)
+    owner: str = Field(..., description="User reference", index=True)
+    repo: str = Field(..., description="Repo reference", index=True)
+    name:str = Field(..., unique=True)
     user: str = Field(..., description="User reference", index=True)
     url: O[str] = Field(None, description="Container url")
+    data: O[dict] = Field(None, description="Container data")
+    repo_payload: O[RepoDeployPayload] = Field(None, description="Repo payload")
+    

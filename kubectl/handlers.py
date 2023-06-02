@@ -1,17 +1,15 @@
 """Non decorated API Request Handlers"""
-import asyncio
 import json
-import os
 
-import jinja2
-from aiofauna import Api, EventSourceResponse, FaunaClient, q
+from aiofauna import Api, FaunaClient, q
 from aiohttp import ClientSession
 from aiohttp.web import WebSocketResponse
 
 from kubectl.client import client
-from kubectl.config import CLOUDFLARE_HEADERS, DOCKER_URL, GITHUB_HEADERS, env
+from kubectl.config import DOCKER_URL, GITHUB_HEADERS, env
 from kubectl.helpers import provision_instance
-from kubectl.models import CodeServer, Container, DatabaseKey
+from kubectl.models import CodeServer, DatabaseKey
+from kubectl.payload import GithubWebhookPayload
 
 app = Api()
 
@@ -86,16 +84,18 @@ async def get_code_server_image(ref:str):
             "url": f"https://{ref}.smartpro.solutions"
         }
     
-    instance = await CodeServer(user=ref).save()
+    instance = CodeServer(user=ref)
+    
+    codeserver_instance = instance.payload
+    
+    container_instance = await client.fetch(f"{DOCKER_URL}/containers/create", method="POST", data=codeserver_instance)
+
+    _id = container_instance["Id"]
+
+    instance.container_id = _id
     
     assert isinstance(instance, CodeServer)
     
-    data = instance.payload
-    
-    data = await client.fetch(f"{DOCKER_URL}/containers/create", method="POST", data=data)
-
-    _id = data["Id"]
-
     await client.text(f"{DOCKER_URL}/containers/{_id}/start", method="POST")
     
     container_info = await client.fetch(f"{DOCKER_URL}/containers/{_id}/json", method="GET")
@@ -104,22 +104,19 @@ async def get_code_server_image(ref:str):
     assert isinstance(instance.proxy_port,int)
     
     provision_info = await provision_instance(ref,instance.port)
-    proxy_info = await provision_instance(f"{ref}-proxy",instance.proxy_port)
-    
-    
+    proxy_info = await provision_instance(_id,instance.proxy_port)
     
     return {
-        "container": _id,
+        "container_id": _id,
         "port": instance.port,
         "url": f"https://{ref}.smartpro.solutions",
-        "proxy": f"https://{ref}-proxy.smartpro.solutions",
+        "proxy_url": f"https://{_id}.smartpro.solutions",
         "provision_info": provision_info,
-        "proxy_provision": proxy_info,
-        "info": container_info
+        "proxy_info": proxy_info,
+        "container_info": container_info
     }
     
     
-        
 @app.get("/api/db/{ref}")
 async def get_database_key(ref:str):
     """Get the database key"""
@@ -149,6 +146,11 @@ async def get_database_key(ref:str):
             role=role
         ).save()
     except Exception as e:
-        
-
         return {"message": str(e), "status": "error"}
+    
+@app.post("/api/webhook/github/auth")
+async def github_auth(webhook_payload:dict):
+    print(webhook_payload)
+    return {
+        "status":"OK"
+    }
